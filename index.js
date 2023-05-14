@@ -2,16 +2,20 @@ import fs from "fs";
 import path from "path";
 const httpMethods = ["GET", "PUT", "POST", "DELETE", "PATCH"];
 
-function readRecursiveIndexFiles(dirPath, indexPaths = []) {
+function readRecursiveIndexFiles(dirPath, indexPaths = [], isDynamic) {
   const files = fs.readdirSync(dirPath);
   files.forEach(function (file) {
     const filePath = path.join(dirPath, file);
     const stat = fs.statSync(filePath);
     if (stat.isDirectory()) {
-      readRecursiveIndexFiles(filePath, indexPaths);
+      readRecursiveIndexFiles(filePath, indexPaths,file.startsWith(":"));
     } else {
       if (file === "index.js") {
+        if(isDynamic){
         indexPaths.push(dirPath);
+        }else{
+        indexPaths.unshift(dirPath);
+        }
       }
     }
   });
