@@ -1,47 +1,49 @@
 import fs from "fs";
 import path from "path";
-const directoryPath = "routes";
-const routes = [];
+const httpMethods = ["GET", "PUT", "POST", "DELETE", "PATCH"];
 
-function readDirectory(dirPath) {
+function readRecursiveIndexFiles(dirPath, indexPaths = []) {
   const files = fs.readdirSync(dirPath);
   files.forEach(function (file) {
     const filePath = path.join(dirPath, file);
     const stat = fs.statSync(filePath);
     if (stat.isDirectory()) {
-      readDirectory(filePath);
+      readRecursiveIndexFiles(filePath, indexPaths);
     } else {
       if (file === "index.js") {
-        routes.push(dirPath);
+        indexPaths.push(dirPath);
       }
     }
   });
 }
 
+async function getIndexFile(route) {
+  return await import("../../" + route + "/index.js");
+}
+
 function handleRoute(route, method, handler, router) {
-  if (handler) {
-    if (
-      handler.constructor.name === "Function" ||
-      handler.constructor.name === "AsyncFunction"
-    ) {
-      router[method.toLowerCase()]("/"+route, handler);
-    } else if(handler.constructor.name === "Array") {
-      router[method.toLowerCase()](route, ...handler);
-    }
+  if (
+    handler.constructor.name === "Function" ||
+    handler.constructor.name === "AsyncFunction"
+  ) {
+    router[method.toLowerCase()](route, handler);
+  } else if (handler.constructor.name === "Array") {
+    router[method.toLowerCase()](route, ...handler);
   }
 }
 
-export default async (router) => {
+export default async (router, options) => {
   if (router)
     try {
-      readDirectory(directoryPath);
-      for (let route of routes) {
-        const handlers = await import("../../" + route + "/index.js");
-        ["GET", "PUT", "POST", "DELETE", "PATCH"].forEach((method) => {
-          console.log(method);
+      const routeDir = options.routeDir || "routes";
+      const indexPaths = [];
+      readRecursiveIndexFiles(routeDir, indexPaths);
+      for (let indexFile of indexPaths) {
+        const handlers = await getIndexFile(indexFile);
+        httpMethods.forEach((method) => {
           if (handlers && handlers[method]) {
-            console.log(handlers)
-            handleRoute(route, method, handlers[method], router);
+            const apiRoute = indexFile.substring(routeDir.length);
+            handleRoute(apiRoute, method, handlers[method], router);
           }
         });
       }
