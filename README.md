@@ -22,8 +22,8 @@ your index files in the specified routeDir will be Api endpoint.
 
 ## create an api endpoint
 ```js
-/routes/hello/index.js
-endpoint: localhost:3000/hello
+// /routes/hello/index.js 
+// endpoint: localhost:3000/hello
 
 export function GET(req,res){
   res.send("get hello")
