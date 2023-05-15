@@ -2,45 +2,45 @@ import * as fs from "fs";
 import * as path from "path";
 const httpMethods = ["GET", "PUT", "POST", "DELETE", "PATCH"];
 
-function readRecursiveIndexFiles(dirPath:string, indexPaths = [], isDynamic = false) {
+function readRecursiveIndexFiles(dirPath: string, indexPaths: string[] = [], isDynamic = false) {
   const files = fs.readdirSync(dirPath);
-  files.forEach(function (file) {
+  files.forEach(function(file) {
     const filePath = path.join(dirPath, file);
     const stat = fs.statSync(filePath);
     if (stat.isDirectory()) {
-      readRecursiveIndexFiles(filePath, indexPaths,file.startsWith(":"));
+      readRecursiveIndexFiles(filePath, indexPaths, file.startsWith(":"));
     } else {
       if (file === "index.js") {
-        if(isDynamic){
-        indexPaths.push(dirPath);
-        }else{
-        indexPaths.unshift(dirPath);
+        if (isDynamic) {
+          indexPaths.push(dirPath);
+        } else {
+          indexPaths.unshift(dirPath);
         }
       }
     }
   });
 }
 
-async function getIndexFile(route) {
-  return await import("../../" + route + "/index.js");
+async function getIndexFile(route: string) {
+  return await import("../../../../" + route + "/index.js");
 }
 
-function handleRoute(route, method, handler, router) {
-  if (
-    handler.constructor.name === "Function" ||
-    handler.constructor.name === "AsyncFunction"
-  ) {
+function handleRoute(route: string, method: string, handler: Function | Function[], router) {
+  if (handler instanceof Function) {
     router[method.toLowerCase()](route, handler);
-  } else if (handler.constructor.name === "Array") {
+  } else if (handler instanceof Array<Function>) {
     router[method.toLowerCase()](route, ...handler);
   }
 }
 
-export default async (router, options) => {
+type FolderRouterOptions = {
+  routeDir: string
+}
+export async function configureFolderRouter(router, options: FolderRouterOptions) {
   if (router)
     try {
       const routeDir = options.routeDir || "routes";
-      const indexPaths = [];
+      const indexPaths: string[] = [];
       readRecursiveIndexFiles(routeDir, indexPaths);
       for (let indexFile of indexPaths) {
         const handlers = await getIndexFile(indexFile);
@@ -52,6 +52,6 @@ export default async (router, options) => {
         });
       }
     } catch (err) {
-      console.log("error happened", err);
+      console.log("folder routing exception: ", err);
     }
 };

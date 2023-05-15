@@ -8,12 +8,12 @@ npm install express-folder-routing
 
 ## usage
 ```js
-import useFolderRoute from "express-folder-routing"
+import {configureFolderRouter} from "express-folder-routing"
 import express from "express"
 
 const app = express()
-useFolderRoute(app,{
-    routeDir:"routes" //default directory is route.
+configureFolderRouter(app,{
+    routeDir:"src/routes" //default directory is /routes.
 })
 app.listen(3000,()=>{})
 ```
@@ -22,7 +22,7 @@ your index files in the specified routeDir will be Api endpoint.
 
 ## create an api endpoint
 ```js
-// /routes/hello/index.js 
+// src/routes/hello/index.js 
 // endpoint: localhost:3000/hello
 
 export function GET(req,res){
@@ -55,7 +55,8 @@ function authMiddleware = (req,res,next){
     if(\*check authentication*\){
         next()
     }else{
-        res.status(401).send()
+        res.status(401).json({message:"unauthenticated"})
     }
 }
 ```
+#### make a route dynamic by simply naming the folder as ":<name>" . then access the name param as req.params.name;
