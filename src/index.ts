@@ -1,14 +1,36 @@
-import * as fs from "fs";
-import * as path from "path";
-const httpMethods = ["GET", "PUT", "POST", "DELETE", "PATCH"];
+import { readdirSync, statSync } from "fs";
+import { join } from "path";
 
-function readRecursiveIndexFiles(dirPath: string, indexPaths: string[] = [], isDynamic = false) {
-  const files = fs.readdirSync(dirPath);
+const REST_METHODS = ["GET", "PUT", "POST", "DELETE", "PATCH"];
+
+async function getIndexFile(route: string) {
+  return await import(process.cwd() + "/" + route + "/index.js");
+}
+
+function handleRouting(
+  route: string,
+  method: string,
+  handler: Function | Function[],
+  router: any
+) {
+  if (handler instanceof Function) {
+    router[method.toLowerCase()](route, handler);
+  } else if (handler instanceof Array<Function>) {
+    router[method.toLowerCase()](route, ...handler);
+  }
+}
+
+function readIndexFiles(
+  dirPath: string,
+  indexPaths: string[] = [],
+  isDynamic = false
+) {
+  const files = readdirSync(dirPath);
   files.forEach(function(file) {
-    const filePath = path.join(dirPath, file);
-    const stat = fs.statSync(filePath);
+    const filePath = join(dirPath, file);
+    const stat = statSync(filePath);
     if (stat.isDirectory()) {
-      readRecursiveIndexFiles(filePath, indexPaths, file.startsWith(":"));
+      readIndexFiles(filePath, indexPaths, file.startsWith(":"));
     } else {
       if (file === "index.js") {
         if (isDynamic) {
@@ -21,37 +43,43 @@ function readRecursiveIndexFiles(dirPath: string, indexPaths: string[] = [], isD
   });
 }
 
-async function getIndexFile(route: string) {
-  return await import("../../../../" + route + "/index.js");
-}
-
-function handleRoute(route: string, method: string, handler: Function | Function[], router) {
-  if (handler instanceof Function) {
-    router[method.toLowerCase()](route, handler);
-  } else if (handler instanceof Array<Function>) {
-    router[method.toLowerCase()](route, ...handler);
-  }
-}
-
 type FolderRouterOptions = {
-  routeDir: string
-}
-export async function configureFolderRouter(router, options: FolderRouterOptions) {
+  routeDir: string;
+  extraMethods: Array<string>;
+};
+
+export async function configureFolderRouter(
+  router: any,
+  options: FolderRouterOptions
+) {
   if (router)
     try {
-      const routeDir = options.routeDir || "routes";
+      if (options?.extraMethods && options.extraMethods instanceof Array<string>) {
+        options.extraMethods.forEach((method) => {
+          REST_METHODS.push(method.toUpperCase());
+        });
+      }
+      const routeDir = options?.routeDir || "routes";
       const indexPaths: string[] = [];
-      readRecursiveIndexFiles(routeDir, indexPaths);
+      readIndexFiles(routeDir, indexPaths);
       for (let indexFile of indexPaths) {
         const handlers = await getIndexFile(indexFile);
-        httpMethods.forEach((method) => {
-          if (handlers && handlers[method]) {
+        REST_METHODS.forEach((method) => {
+          let handler = handlers
+            ? handlers[method] || handlers.default
+            : undefined;
+          if (handler) {
             const apiRoute = indexFile.substring(routeDir.length);
-            handleRoute(apiRoute, method, handlers[method], router);
+            handleRouting(
+              apiRoute,
+              method,
+              handler,
+              router
+            );
           }
         });
       }
     } catch (err) {
       console.log("folder routing exception: ", err);
     }
-};
+}
