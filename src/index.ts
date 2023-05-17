@@ -1,7 +1,7 @@
 import { readdirSync, statSync } from "fs";
 import { join } from "path";
 
-const REST_METHODS = ["GET", "PUT", "POST", "DELETE", "PATCH"];
+const HTTP_METHODS = ["GET", "PUT", "POST", "DELETE", "PATCH", "HEAD", "OPTIONS"];
 
 async function getIndexFile(route: string) {
   return await import(process.cwd() + "/" + route + "/index.js");
@@ -20,24 +20,28 @@ function handleRouting(
   }
 }
 
+function getRouteType (file:string):RouteType {
+      let routeType:RouteType = "static";
+      if(file==="*"){routeType="catch-all"}
+      else if(file.startsWith(":")){routeType="dynamic"}
+      return routeType
+}
+
+type RouteType = 'dynamic' | 'static' | 'catch-all'
+
 function readIndexFiles(
   dirPath: string,
   indexPaths: string[] = [],
-  isDynamic = false
 ) {
   const files = readdirSync(dirPath);
   files.forEach(function(file) {
     const filePath = join(dirPath, file);
     const stat = statSync(filePath);
     if (stat.isDirectory()) {
-      readIndexFiles(filePath, indexPaths, file.startsWith(":"));
+      readIndexFiles(filePath, indexPaths);
     } else {
       if (file === "index.js") {
-        if (isDynamic) {
-          indexPaths.push(dirPath);
-        } else {
           indexPaths.unshift(dirPath);
-        }
       }
     }
   });
@@ -56,7 +60,7 @@ export async function configureFolderRouter(
     try {
       if (options?.extraMethods && options.extraMethods instanceof Array<string>) {
         options.extraMethods.forEach((method) => {
-          REST_METHODS.push(method.toUpperCase());
+          HTTP_METHODS.push(method.toUpperCase());
         });
       }
       const routeDir = options?.routeDir || "routes";
@@ -64,7 +68,7 @@ export async function configureFolderRouter(
       readIndexFiles(routeDir, indexPaths);
       for (let indexFile of indexPaths) {
         const handlers = await getIndexFile(indexFile);
-        REST_METHODS.forEach((method) => {
+        HTTP_METHODS.forEach((method) => {
           let handler = handlers
             ? handlers[method] || handlers.default
             : undefined;
