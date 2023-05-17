@@ -1,6 +1,6 @@
 {
   "name": "express-folder-router",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "description": "add folder based routing to express",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -23,24 +23,26 @@
   "files":["dist/**/*"],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sib61/express-folder-routing.git"
+    "url": "git+https://github.com/sib61/express-folder-router.git"
   },
   "keywords": [
+    "express-folder-router",
+    "folder-router",
+    "express-folder-routing",
     "folder-routing",
     "express",
     "api",
     "node",
     "nodejs",
     "express-js",
-    "mern-folder-routing",
-    "express-folder-routing"
+    "mern-folder-routing"
   ],
   "author": "sib61",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/sib61/express-folder-routing/issues"
+    "url": "https://github.com/sib61/express-folder-router/issues"
   },
-  "homepage": "https://github.com/sib61/express-folder-routing#readme",
+  "homepage": "https://github.com/sib61/express-folder-router#readme",
   "devDependencies": {
     "@types/node": "^20.1.4"
   }
