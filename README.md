@@ -13,8 +13,10 @@ import {configureFolderRouter} from "express-folder-router"
 
 const app = express()
 
+// the second parameter is optional
 configureFolderRouter(app, {
-  routeDir: "routes"
+  routeDir: "routes", // specify the root route directory. default is "routes" directory . nested directory like src/routes can be used.
+  extraMethods:["WS"], // specify if you have any extra methods . WS for express-ws.
 });
 
 app.listen(3000, () => {
@@ -70,6 +72,6 @@ function authMiddleware = (req,res,next){
     }
 }
 ```
-## make a dynamic route by simply naming the folder as ":<name>" . then access the name param as req.params.name;
-## make a catch-all route  by simply naming the folder as * ;
+### make a dynamic route by simply naming the folder as ":dynamicName" . then access the dynamicName param as req.params.dynamicName;
+### make a catch-all route  by simply naming the folder as * ;
 

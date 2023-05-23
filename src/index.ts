@@ -63,7 +63,7 @@ export async function configureFolderRouter(
           HTTP_METHODS.push(method.toUpperCase());
         });
       }
-      const routeDir = options?.routeDir || "routes";
+      const routeDir = options?.routeDir ?? "routes";
       const indexPaths: string[] = [];
       readIndexFiles(routeDir, indexPaths);
       for (let indexFile of indexPaths) {
