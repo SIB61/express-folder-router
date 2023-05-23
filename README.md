@@ -3,19 +3,23 @@ This is a minimalist package for express to add folder based routing in it.
 
 ## Installation
 ```bash
-npm install express-folder-routing
+npm install express-folder-router
 ```
 
 ## usage
 ```js
-import {configureFolderRouter} from "express-folder-routing"
 import express from "express"
+import {configureFolderRouter} from "express-folder-router"
 
 const app = express()
-configureFolderRouter(app,{
-    routeDir:"src/routes" //default directory is /routes.
-})
-app.listen(3000,()=>{})
+
+configureFolderRouter(app, {
+  routeDir: "routes"
+});
+
+app.listen(3000, () => {
+  console.log("listening to port 3000");
+});
 ```
 
 your index files in the specified routeDir will be Api endpoint.
@@ -26,22 +30,29 @@ your index files in the specified routeDir will be Api endpoint.
 // endpoint: localhost:3000/hello
 
 export function GET(req,res){
-  res.send("get hello")
-}
-
-export function POST(req,res){
-  res.send("post hello")
-}
-
-export function PUT(req,res){
-  res.send("put hello")
+  res.send("this is a get request")
 }
 
 export function DELETE(req,res){
-  res.send("delete hello")
+  res.send("this is a delete request")
 }
-export function PATCH(req,res){
-  res.send("delete hello")
+
+export function POST(req,res){
+  res.send("this is a post request")
+}
+```
+### alternatively export a default function that will receive all requests except the ones that you export as a named function.
+
+```js
+// src/routes/hello/index.js 
+// endpoint: localhost:3000/hello
+
+export function GET(req,res){
+  res.send("this is a get request")
+}
+
+export default function(req,res){
+  res.send("this is a catch all request methods except the GET method")
 }
 ```
 
@@ -59,4 +70,6 @@ function authMiddleware = (req,res,next){
     }
 }
 ```
-#### make a route dynamic by simply naming the folder as ":<name>" . then access the name param as req.params.name;
+## make a dynamic route by simply naming the folder as ":<name>" . then access the name param as req.params.name;
+## make a catch-all route  by simply naming the folder as * ;
+
