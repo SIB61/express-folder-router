@@ -12,15 +12,17 @@
     ".": {
       "import": {
         "types": "./dist/mjs/index.d.ts",
-        "default":"./dist/mjs/index.js"
+        "default": "./dist/mjs/index.js"
       },
-      "require":{
-        "types":"./dist/cjs/index.d.ts",
-        "default":"./dist/cjs/index.js"
+      "require": {
+        "types": "./dist/cjs/index.d.ts",
+        "default": "./dist/cjs/index.js"
       }
     }
   },
-  "files":["dist/**/*"],
+  "files": [
+    "dist/**/*"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/sib61/express-folder-router.git"
