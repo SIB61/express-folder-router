@@ -60,11 +60,11 @@ export default function(req,res){
 
 ## Use middleware 
 ```js
-export const GET = [authMiddleware,(req,res){
+export const GET = [authMiddleware,(req,res)=>{
   res.send("get hello")
 }]
 
-function authMiddleware = (req,res,next){
+function authMiddleware(req,res,next){
     if(\*check authentication*\){
         next()
     }else{
