@@ -1,6 +1,6 @@
 {
   "name": "express-folder-router",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "add folder based routing to express",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
