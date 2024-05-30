@@ -1,10 +1,13 @@
 {
   "name": "express-folder-router",
-  "version": "2.1.1-beta.0",
+  "version": "1.0.0",
   "description": "add folder based routing to express",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "compile": "rm -rf dist/lib && tsc && tsc --build tsconfig.es5.json && ./fixup",
+    "beta-version": "npm version prerelease --preid beta",
+    "minor-version": "npm version minor",
+    "major-version": "npm version major",
     "beta-publish": "npm run compile && npm publish --tag beta",
     "stable-publish": "npm run compile && npm publish"
   },
