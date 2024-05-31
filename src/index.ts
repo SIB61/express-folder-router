@@ -10,6 +10,16 @@ const HTTP_METHODS = [
   "PATCH",
 ];
 
+const getPathType = (path) => {
+  if (path.startsWith('[...') && path.endsWith(']')) {
+    return 'catch-all'
+  } else if (path.startsWith('[') && path.endsWith(']')) {
+    return 'dynamic'
+  } else {
+    return 'absolute'
+  }
+}
+
 function getControllerFilePaths(dirPath: string): string[] {
   const filePaths = readdirSync(dirPath);
   let controllerFilePaths: string[] = []
@@ -20,6 +30,8 @@ function getControllerFilePaths(dirPath: string): string[] {
       controllerFilePaths = controllerFilePaths.concat(getControllerFilePaths(controllerPath))
       return
     }
+
+    console.log(filePath, controllerPath)
 
     if (
       (controllerPath.charAt(0) === "[" && controllerPath.charAt(controllerPath.length - 4) === "]") ||
