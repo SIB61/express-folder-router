@@ -34,7 +34,7 @@ function getControllerFilePaths(dirPath: string): string[] {
     const docPath = path.join(dirPath, doc);
     const isFolder = statSync(docPath).isDirectory();
     if (isFolder) {
-      controllerFilePaths = controllerFilePaths.concat(getControllerFilePaths(doc))
+      controllerFilePaths = controllerFilePaths.concat(getControllerFilePaths(docPath))
       return
     }
 
