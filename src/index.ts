@@ -66,6 +66,7 @@ function getApiRoute(url: string): string {
 type FolderRouterOptions = {
   routeDir?: string;
   extraMethods?: Array<String>;
+  log?: boolean,
 };
 
 const isValidHandlers = (handlers: any[]) => {
@@ -76,7 +77,7 @@ export async function configureFolderRouter(
   router: unknown,
   options: FolderRouterOptions = {}
 ) {
-  const { extraMethods = [], routeDir = "routes" } = options;
+  const { extraMethods = [], routeDir = "routes", log = true } = options;
   if (!router) {
     return;
   }
@@ -97,7 +98,9 @@ export async function configureFolderRouter(
         return
       }
       router[method.toLowerCase()](apiRoute, ...apiRouteHandlers);
-      console.log(`> ${method} ${apiRoute}`)
+      if (log) {
+        console.log(`> ${method} ${apiRoute}`)
+      }
     });
   }
 }
