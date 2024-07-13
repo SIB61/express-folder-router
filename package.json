@@ -5,9 +5,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "compile": "rm -rf dist/lib && tsc && tsc --build tsconfig.es5.json && ./fixup",
-    "publish-beta": "npm run compile && npm publish --tag beta",
-    "publish-alpha": "npm run compile && npm publish --tag alpha",
-    "publish-stable": "npm run compile && npm publish"
+    "publish": "npm run compile && npm publish --tag beta"
   },
   "main": "dist/cjs/index.js",
   "module": "dist/mjs/index.js",
