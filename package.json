@@ -4,8 +4,7 @@
   "description": "add folder based routing to express",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "compile": "rm -rf dist/lib && tsc && tsc --build tsconfig.es5.json && ./fixup",
-    "publish": "npm run compile && npm publish --tag beta"
+    "compile": "rm -rf dist/lib && tsc && tsc --build tsconfig.es5.json && ./fixup"
   },
   "main": "dist/cjs/index.js",
   "module": "dist/mjs/index.js",
