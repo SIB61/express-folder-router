@@ -15,6 +15,7 @@ type PathType = 'dynamic' | 'catch-all' | 'static'
 const getRouteType = (path: string): PathType => {
   if (path.startsWith('[...') && path.endsWith(']')) return 'catch-all'
   if (path.startsWith('[') && path.endsWith(']')) return 'dynamic'
+  if (path == '*') return 'catch-all'
   return 'static'
 }
 
