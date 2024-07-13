@@ -10,6 +10,10 @@ const HTTP_METHODS = [
   "PATCH",
 ];
 
+const getFileNameWithoutExt = (nameWithExt: string) => {
+  return nameWithExt.replace(/\.[^/.]+$/, "")
+}
+
 type PathType = 'dynamic' | 'catch-all' | 'static'
 
 const getRouteType = (path: string): PathType => {
@@ -34,11 +38,11 @@ function getControllerFilePaths(dirPath: string): string[] {
     const docPath = path.join(dirPath, doc);
     const isFolder = statSync(docPath).isDirectory();
     if (isFolder) {
-      controllerFilePaths = controllerFilePaths.concat(getControllerFilePaths(docPath))
+      controllerFilePaths = getControllerFilePaths(docPath).concat(controllerFilePaths)
       return
     }
 
-    if (getRouteType(doc.split('.')[0]) == 'dynamic') {
+    if (getRouteType(getFileNameWithoutExt(doc)) == 'dynamic') {
       controllerFilePaths.push(docPath)
       return
     }
@@ -50,7 +54,7 @@ function getControllerFilePaths(dirPath: string): string[] {
 }
 
 function getApiRoute(url: string): string {
-  const [baseurl] = path.basename(url).split(".");
+  const baseurl = getFileNameWithoutExt(path.basename(url))
   const dirname = path.dirname(url);
   const apiRoute = baseurl === "index" ? dirname : path.join(dirname, baseurl);
   return apiRoute
@@ -78,14 +82,16 @@ export async function configureFolderRouter(
   }
   const httpMethods = [...HTTP_METHODS, ...extraMethods.map(extraMethod => extraMethod.toUpperCase())]
   const controllerPaths = getControllerFilePaths(routeDir!);
+
   for (let controllerPath of controllerPaths) {
     const importPath = path.sep === path.posix.sep
       ? path.join(currentWorkingDirectory, controllerPath)
       : "file://" + path.join(currentWorkingDirectory, controllerPath);
     const handlers = await import(importPath);
+    const apiRoute = getApiRoute(controllerPath.substring(routeDir.length));
+
     httpMethods.forEach((method) => {
       const handler = handlers[method] || handlers.default?.default || handlers.default;
-      const apiRoute = getApiRoute(controllerPath.substring(routeDir.length));
       const apiRouteHandlers = [handler].flat();
       if (!isValidHandlers(apiRouteHandlers)) {
         return
