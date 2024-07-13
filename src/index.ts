@@ -10,38 +10,41 @@ const HTTP_METHODS = [
   "PATCH",
 ];
 
-const getPathType = (path) => {
-  if (path.startsWith('[...') && path.endsWith(']')) {
-    return 'catch-all'
-  } else if (path.startsWith('[') && path.endsWith(']')) {
-    return 'dynamic'
-  } else {
-    return 'absolute'
-  }
+type PathType = 'dynamic' | 'catch-all' | 'static'
+
+const getRouteType = (path: string): PathType => {
+  if (path.startsWith('[...') && path.endsWith(']')) return 'catch-all'
+  if (path.startsWith('[') && path.endsWith(']')) return 'dynamic'
+  return 'static'
 }
 
+const getRouteString = (path: string): string => {
+  const pathType = getRouteType(path)
+  if (pathType == 'catch-all') return '*'
+  if (pathType == 'dynamic') return `:${path.slice(1, -1)}`;
+  return path
+}
+
+
 function getControllerFilePaths(dirPath: string): string[] {
-  const filePaths = readdirSync(dirPath);
+  const docs = readdirSync(dirPath);
   let controllerFilePaths: string[] = []
-  filePaths.forEach(async (filePath) => {
-    const controllerPath = path.join(dirPath, filePath);
-    const isFolder = statSync(controllerPath).isDirectory();
+  docs.forEach(async (doc) => {
+    const docPath = path.join(dirPath, doc);
+    const isFolder = statSync(docPath).isDirectory();
     if (isFolder) {
-      controllerFilePaths = controllerFilePaths.concat(getControllerFilePaths(controllerPath))
+      controllerFilePaths = controllerFilePaths.concat(getControllerFilePaths(doc))
       return
     }
 
-    console.log(filePath, controllerPath)
-
-    if (
-      (controllerPath.charAt(0) === "[" && controllerPath.charAt(controllerPath.length - 4) === "]") ||
-      controllerPath.charAt(0) === ":"
-    ) {
-      controllerFilePaths.push(controllerPath)
-    } else {
-      controllerFilePaths.unshift(controllerPath)
+    if (getRouteType(doc.split('.')[0]) == 'dynamic') {
+      controllerFilePaths.push(docPath)
+      return
     }
+
+    controllerFilePaths.unshift(docPath)
   });
+
   return controllerFilePaths;
 }
 
@@ -51,12 +54,7 @@ function getApiRoute(url: string): string {
   const apiRoute = baseurl === "index" ? dirname : path.join(dirname, baseurl);
   return apiRoute
     .split(path.sep)
-    .map((item) => {
-      if (item.startsWith("[") && item.endsWith("]")) {
-        return `:${item.substring(1, item.length - 1)}`;
-      }
-      return item;
-    })
+    .map(getRouteString)
     .join(path.posix.sep);
 }
 
