@@ -15,19 +15,36 @@ import express from "express";
 import { configureFolderRouter } from "express-folder-router";
 
 const app = express();
-
-// the second parameter is optional
-configureFolderRouter(app, {
-  routeDir: "routes", // specify the root route directory. default is "routes" directory . nested directory like src/routes can be used.
-  extraMethods: ["WS"], // specify if you have any extra methods . WS for express-ws.
-});
+configureFolderRouter(app);
 
 app.listen(3000, () => {
   console.log("listening to port 3000");
 });
 ```
 
-your index files in the specified routeDir will be Api endpoint.
+The default directory for our api routes is 'routes'. If we want to change the default directory name or path we can pass a second optional param:
+
+```js
+configureFolderRouter(app, {
+  routeDir: "src/routes",
+});
+```
+
+If we want to use any extra methods like head or ws etc. we can pass another option as below:
+
+```js
+configureFolderRouter(app, {
+  extraMethods: ["head", "ws"],
+});
+```
+
+We can turn off the api route logs by:
+
+```js
+configureFolderRouter(app, {
+  log: false,
+});
+```
 
 ## create an api endpoint
 
@@ -35,28 +52,21 @@ your index files in the specified routeDir will be Api endpoint.
 // routes/hello/index.js or routes/hello.js
 // endpoint: localhost:3000/hello
 
-export function GET(req, res) {
+export const GET = (req, res) => {
   res.send("this is a get request");
-}
+};
 
-export function DELETE(req, res) {
-  res.send("this is a delete request");
-}
-
-export function POST(req, res) {
+export const POST = (req, res) => {
   res.send("this is a post request");
-}
+};
 ```
 
-### alternatively export a default function that will receive all requests except the ones that you export as a named function.
+## alternatively export a default function that will receive all requests except the ones that you export as a named function.
 
 ```js
-// src/routes/hello/index.js
-// endpoint: localhost:3000/hello
-
-export function GET(req, res) {
-  res.send("this is a get request");
-}
+export const GET = (req, res) => {
+  res.send("This is a get request");
+};
 
 // this function will catch all the http methods except GET
 export default function (req, res) {
@@ -67,6 +77,7 @@ export default function (req, res) {
 ## Use middleware
 
 ```js
+
 export const GET = [authMiddleware,(req,res)=>{
   res.send("get hello")
 }]
@@ -80,6 +91,8 @@ function authMiddleware(req,res,next){
 }
 ```
 
-### make a dynamic route by simply naming the folder as "[dynamicName].js" or ":dynamicName.js" .
+###### We can make a dynamic route by simply naming the file as "[dynamicName].js" or ":dynamicName.js".
 
-### make a catch-all route by simply naming the folder as \*.js or [...name].js ;
+###### We can make a catch-all route by simply naming the file as [...name].js or \*.js.
+
+![alt dashboard](https://github.com/SIB61/express-folder-router/blob/main/imgs/example.png)
